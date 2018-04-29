@@ -1,0 +1,1 @@
+This is a part my "Hello World" in MEAN stack development. An application to post messages. This repo is the back-end built using ExpressJS, Node JS, Mongoose and MongoDB.

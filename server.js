@@ -1,10 +1,12 @@
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
-var mongo = require('mongodb').MongoClient;
+var mongoose = require('mongoose');
 app.use(bodyParser.json());
 
-var database;
+var Message = mongoose.model('Message',{
+  msg : String
+});
 
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -12,16 +14,29 @@ app.use(function(req, res, next) {
   next();
 })
 
+app.get('/api/message', getMessages);
+
 app.post('/api/message', function(request, response){
-  console.log(request.body);
-  database.collection('messages').insertOne(request.body);
-  response.status(200);
+  console.log("Request body : " + request.body);
+  var message = new Message(request.body);
+  let messages;
+  message.save().then(function(){
+    Message.find({}).exec(function(err, result){
+      console.log("Response ________ " + result);
+      response.status(200).send(result);
+    });
+  });
 });
 
-mongo.connect("mongodb://localhost:27017/test", function(err, client) {
+function getMessages(req, res) {
+  Message.find({}).exec(function(err, result){
+    res.send(result);
+  })
+}
+
+mongoose.connect("mongodb://localhost:27017/test", function(err, db) {
   if (!err) {
      console.log("We are connected to Mongo DB");
-     database = client.db('test');
   }
 });
 
